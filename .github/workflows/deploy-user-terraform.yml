@@ -1,0 +1,28 @@
+name: Deploy User Terraform
+
+on:
+  workflow_dispatch:
+    inputs:
+      user_id:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve \
+          -var="user_id=${{ github.event.inputs.user_id }}" \
+          -var="db_password=${{ secrets.DB_PASSWORD }}"
