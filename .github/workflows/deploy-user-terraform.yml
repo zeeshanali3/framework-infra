@@ -23,6 +23,8 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve \
-          -var="user_id=${{ github.event.inputs.user_id }}" \
-          -var="db_password=${{ secrets.DB_PASS }}"
+        env:
+          user_id: ${{ github.event.inputs.user_id }}
+          mysql_admin_password: ${{ secrets.DB_PASS }}
+        run: |
+          terraform apply -auto-approve
