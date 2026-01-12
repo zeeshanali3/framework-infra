@@ -38,6 +38,7 @@ jobs:
       - name: Terraform Apply
         env:
           #user_id: ${{ github.event.inputs.user_id }}
-          mysql_admin_password: ${{ secrets.DB_PASS }}
+          #mysql_admin_password: ${{ secrets.DB_PASS }}
+          TF_VAR_mysql_admin_password: ${{ secrets.DB_PASS }}
         run: |
           terraform apply -auto-approve
