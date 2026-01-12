@@ -19,12 +19,18 @@ jobs:
         with:
           terraform_version: 1.6.2
 
+      # Azure Login
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Apply
         env:
-          user_id: ${{ github.event.inputs.user_id }}
+          #user_id: ${{ github.event.inputs.user_id }}
           mysql_admin_password: ${{ secrets.DB_PASS }}
         run: |
           terraform apply -auto-approve
