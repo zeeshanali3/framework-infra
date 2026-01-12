@@ -29,7 +29,7 @@ variable "mysql_server_name" {
   default = "framework-mysql"
 }
 
-variable "user_id" {
-  description = "User ID for project"
-  type        = string
-}
+# variable "user_id" {
+#   description = "User ID for project"
+#   type        = string
+# }

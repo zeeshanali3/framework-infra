@@ -38,11 +38,11 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   administrator_login    = var.mysql_admin_user
   administrator_password = var.mysql_admin_password
 
-  sku_name = "B_Standard_B1ms" # LOW COST
-  #version  = "8.0.21"
+  sku_name = "GP_Standard_D2ds_v4" # 
+  version  = "8.0.44"
 
   storage {
-    size_gb = 20
+    size_gb = 32
   }
 
   backup_retention_days = 7
@@ -53,13 +53,13 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   ]
 }
 
-resource "azurerm_mysql_flexible_database" "user_db" {
-  name                = "db_${var.user_id}"
-  resource_group_name = azurerm_resource_group.rg.name
-  server_name         = azurerm_mysql_flexible_server.mysql.name
-  charset             = "utf8"
-  collation           = "utf8_general_ci"
-}
+# resource "azurerm_mysql_flexible_database" "user_db" {
+#   name                = "db_${var.user_id}"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   server_name         = azurerm_mysql_flexible_server.mysql.name
+#   charset             = "utf8"
+#   collation           = "utf8_general_ci"
+# }
 
 ###################### Networking (ALLOW ACCESS FOR NOW) ######################
 
