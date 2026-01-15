@@ -70,3 +70,67 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "allow_azure" {
   start_ip_address    = "0.0.0.0"
   end_ip_address      = "0.0.0.0"
 }
+
+###################### backend Container ######################
+
+
+resource "azurerm_container_app" "backend" {
+  name                         = "backend-${var.user_id}"
+  container_app_environment_id = azurerm_container_app_environment.env.id
+  resource_group_name          = azurerm_resource_group.rg.name
+  revision_mode                = "Single"
+
+  template {
+    # Allows scaling to zero when no traffic is detected
+    min_replicas = 0 
+    max_replicas = 5
+
+    # 1. THE SAFE: Define all secrets from your JSON map
+    dynamic "secret" {
+      for_each = local.secret_map
+      content {
+        name  = lower(replace(MY_APP_SECRETS, "_", "-"))
+        value = secret.value
+      }
+    }
+
+    container {
+      name   = "api"
+      image  = "${azurerm_container_registry.acr.login_server}/backend:${var.user_id}"
+      cpu    = 0.5
+      memory = "1Gi"
+
+      # Static env variable
+      env {
+        name  = "PROJECT_ID"
+        value = var.user_id
+      }
+
+      # 2. THE KEY: Dynamically map all JSON secrets to env vars
+      dynamic "env" {
+        for_each = local.secret_map
+        content {
+          name        = env.key
+          secret_name = lower(replace(MY_APP_SECRETS, "_", "-"))
+        }
+      }
+    }
+
+    # Scaling rule to trigger wake-up from zero
+    http_scale_rule {
+      name                = "http-scale"
+      concurrent_requests = "10"
+    }
+  }
+
+  ingress {
+    external_enabled = true # Set to true if frontend needs to reach it via URL
+    target_port      = 8080 # Matches SERVER_PORT in your JSON
+    transport        = "auto"
+
+    traffic_weight {
+      percentage      = 100
+      latest_revision = true
+    }
+  }
+}
